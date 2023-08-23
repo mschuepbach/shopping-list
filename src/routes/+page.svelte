@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	let webSocketEstablished = false;
 	let ws: WebSocket | null = null;
+	let items: string[] = [];
+	let newItem = '';
 	let log: string[] = [];
 
 	const logEvent = (str: string) => {
@@ -25,6 +27,9 @@
 		ws.addEventListener('message', (event) => {
 			console.log('[websocket] message received', event);
 			logEvent(`[websocket] message received: ${event.data}`);
+			try {
+				items = JSON.parse(event.data);
+			} catch (error) {}
 		});
 	};
 
@@ -32,12 +37,17 @@
 		const res = await fetch('/api/test');
 		const data = await res.json();
 		console.log('Data from GET endpoint', data);
-		logEvent(`[GET] data received: ${JSON.stringify(data)}`);
+		logEvent(`[GET] data received: ${data}`);
 	};
 
 	const sendData = async () => {
-		ws?.send('Hello from client');
+		ws?.send(newItem);
+		newItem = '';
 	};
+
+	onMount(() => {
+		establishWebSocket();
+	});
 
 	onDestroy(() => {
 		ws?.close();
@@ -46,6 +56,12 @@
 
 <main>
 	<h1>SvelteKit with WebSocket Integration</h1>
+
+	{#each items as item}
+		<div>{item}</div>
+	{/each}
+
+	<input bind:value={newItem} />
 
 	<button disabled={webSocketEstablished} on:click={() => establishWebSocket()}>
 		Establish WebSocket connection

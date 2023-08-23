@@ -17,8 +17,13 @@ const startupWebsocketServer = () => {
 			// ws.userId = session.userId;
 			console.log(`[wss:kit] client connected (${ws.socketId})`);
 			ws.send(`Hello from SvelteKit ${new Date().toLocaleString()} (${ws.socketId})]`);
-			ws.on('message', (data) => {
+
+			const items: string[] = [];
+
+			ws.on('message', (data: string) => {
 				console.log(`[wss:kit] received: ${data}`);
+				items.push(data.toString());
+				ws.send(JSON.stringify(items));
 			});
 
 			ws.on('close', () => {
