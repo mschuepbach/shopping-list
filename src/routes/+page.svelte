@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
+	import { Button } from "$lib/components/ui/button";
+	import { Input } from "$lib/components/ui/input";
 
 	let webSocketEstablished = false;
 	let ws: WebSocket | null = null;
@@ -61,14 +63,16 @@
 		<div>{item}</div>
 	{/each}
 
-	<input bind:value={newItem} />
+	<div class="flex gap-2">
+		<Input bind:value={newItem} />
+		<Button on:click={() => sendData()}> Send data to server </Button>
+	</div>
+	
+	<Button disabled={webSocketEstablished} on:click={() => establishWebSocket()}>
+			Establish WebSocket connection
+	</Button>
 
-	<button disabled={webSocketEstablished} on:click={() => establishWebSocket()}>
-		Establish WebSocket connection
-	</button>
-
-	<button on:click={() => requestData()}> Request Data from GET endpoint </button>
-	<button on:click={() => sendData()}> Send data to server </button>
+	<Button on:click={() => requestData()}> Request Data from GET endpoint </Button>
 
 	<ul>
 		{#each log as event}
@@ -76,9 +80,3 @@
 		{/each}
 	</ul>
 </main>
-
-<style>
-	main {
-		font-family: sans-serif;
-	}
-</style>
