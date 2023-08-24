@@ -38,7 +38,7 @@ export const createWSSGlobalInstance = () => {
 
 	(globalThis as ExtendedGlobal)[GlobalThisWSS] = wss;
 
-	wss.on('connection', (ws) => {
+	wss.on('connection', (ws: ExtendedWebSocket) => {
 		ws.socketId = nanoid();
 		console.log(`[wss:global] client connected (${ws.socketId})`);
 

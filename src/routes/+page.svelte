@@ -2,10 +2,11 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { Button } from "$lib/components/ui/button";
 	import { Input } from "$lib/components/ui/input";
+	import type { SelectShoppingList } from '../lib/server/schema';
 
 	let webSocketEstablished = false;
 	let ws: WebSocket | null = null;
-	let items: string[] = [];
+	let items: SelectShoppingList[] = [];
 	let newItem = '';
 	let log: string[] = [];
 
@@ -60,7 +61,7 @@
 	<h1>SvelteKit with WebSocket Integration</h1>
 
 	{#each items as item}
-		<div>{item}</div>
+		<div>{item.item}</div>
 	{/each}
 
 	<div class="flex gap-2">
