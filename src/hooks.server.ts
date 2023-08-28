@@ -5,15 +5,17 @@ import type { Handle } from '@sveltejs/kit';
 import { customAlphabet } from 'nanoid';
 import { db } from './lib/server/db';
 import { shoppingListTbl } from './lib/server/schema';
+import { WebSocket } from 'ws';
 
 const alphabet = '0123456789';
 const nanoid = customAlphabet(alphabet, 9);
 
 // This can be extracted into a separate file
 let wssInitialized = false;
-const startupWebsocketServer = () => {
+const startupWebsocketServer = async () => {
 	if (wssInitialized) return;
 	console.log('[wss:kit] setup');
+	const items = await db.select().from(shoppingListTbl);
 	const wss = (globalThis as ExtendedGlobal)[GlobalThisWSS];
 	if (wss !== undefined) {
 		wss.on('connection', async (ws: ExtendedWebSocket, _request) => {
@@ -23,15 +25,17 @@ const startupWebsocketServer = () => {
 			// ws.userId = session.userId;
 			console.log(`[wss:kit] client connected (${ws.socketId})`);
 			ws.send(`Hello from SvelteKit ${new Date().toLocaleString()} (${ws.socketId})]`);
-			const items = await db.select().from(shoppingListTbl);
 			ws.send(JSON.stringify(items));
-
 			ws.on('message', async (data: string) => {
 				console.log(`[wss:kit] received: ${data}`);
 				const newItem = { id: nanoid(), item: data.toString() };
 				await db.insert(shoppingListTbl).values(newItem);
 				items.push(newItem);
-				ws.send(JSON.stringify(items));
+				wss.clients.forEach((c) => {
+					if (c.readyState === WebSocket.OPEN){
+						c.send(JSON.stringify(items));
+					}
+				});
 			});
 
 			ws.on('close', () => {
