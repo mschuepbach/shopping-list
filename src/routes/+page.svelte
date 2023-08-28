@@ -36,13 +36,6 @@
 		});
 	};
 
-	const requestData = async () => {
-		const res = await fetch('/api/test');
-		const data = await res.json();
-		console.log('Data from GET endpoint', data);
-		logEvent(`[GET] data received: ${data}`);
-	};
-
 	const sendData = async () => {
 		ws?.send(newItem);
 		newItem = '';
@@ -57,27 +50,14 @@
 	});
 </script>
 
-<main>
-	<h1>SvelteKit with WebSocket Integration</h1>
-
-	{#each items as item}
-		<div>{item.item}</div>
-	{/each}
-
-	<div class="flex gap-2">
-		<Input bind:value={newItem} />
-		<Button on:click={() => sendData()}> Send data to server </Button>
-	</div>
-	
-	<Button disabled={webSocketEstablished} on:click={() => establishWebSocket()}>
-			Establish WebSocket connection
-	</Button>
-
-	<Button on:click={() => requestData()}> Request Data from GET endpoint </Button>
-
-	<ul>
-		{#each log as event}
-			<li>{event}</li>
+<main class="w-full h-full flex flex-col p-2 items-center justify-between">
+	<div class="flex flex-wrap gap-2 overflow-auto">
+		{#each items as item}
+			<div class="w-24 h-24 p-2 bg-orange-700 text-secondary rounded flex justify-center items-center break-words select-none">{item.item}</div>
 		{/each}
-	</ul>
+	</div>
+	<div class="w-full flex gap-2">
+		<Input class="w-full" bind:value={newItem} />
+		<Button on:click={() => sendData()}>Add</Button>
+	</div>
 </main>
