@@ -1,18 +1,13 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { Button } from "$lib/components/ui/button";
-	import { Input } from "$lib/components/ui/input";
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
 	import type { SelectShoppingList } from '../lib/server/schema';
 
 	let webSocketEstablished = false;
 	let ws: WebSocket | null = null;
 	let items: SelectShoppingList[] = [];
 	let newItem = '';
-	let log: string[] = [];
-
-	const logEvent = (str: string) => {
-		log = [...log, str];
-	};
 
 	const establishWebSocket = () => {
 		if (webSocketEstablished) return;
@@ -21,24 +16,25 @@
 		ws.addEventListener('open', (event) => {
 			webSocketEstablished = true;
 			console.log('[websocket] connection open', event);
-			logEvent('[websocket] connection open');
 		});
 		ws.addEventListener('close', (event) => {
 			console.log('[websocket] connection closed', event);
-			logEvent('[websocket] connection closed');
 		});
 		ws.addEventListener('message', (event) => {
 			console.log('[websocket] message received', event);
-			logEvent(`[websocket] message received: ${event.data}`);
 			try {
 				items = JSON.parse(event.data);
 			} catch (error) {}
 		});
 	};
 
-	const sendData = async () => {
-		ws?.send(newItem);
+	const addItem = async () => {
+		ws?.send(JSON.stringify({ operation: 'add', name: newItem }));
 		newItem = '';
+	};
+
+	const removeItem = async (id: string) => {
+		ws?.send(JSON.stringify({ operation: 'remove', id }));
 	};
 
 	onMount(() => {
@@ -50,14 +46,16 @@
 	});
 </script>
 
-<main class="w-full h-full flex flex-col p-2 items-center justify-between">
+<main class="flex h-full w-full flex-col items-center justify-between p-2">
 	<div class="flex flex-wrap gap-2 overflow-auto">
 		{#each items as item}
-			<div class="w-24 h-24 p-2 bg-orange-700 text-secondary rounded flex justify-center items-center break-words select-none">{item.item}</div>
+			<Button class="h-24 w-24 bg-orange-700" on:click={() => removeItem(item.id)}>
+				{item.name}
+			</Button>
 		{/each}
 	</div>
-	<div class="w-full flex gap-2">
+	<div class="flex w-full gap-2">
 		<Input class="w-full" bind:value={newItem} />
-		<Button on:click={() => sendData()}>Add</Button>
+		<Button on:click={() => addItem()}>Add</Button>
 	</div>
 </main>

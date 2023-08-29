@@ -6,6 +6,13 @@ import { customAlphabet } from 'nanoid';
 import { db } from './lib/server/db';
 import { shoppingListTbl } from './lib/server/schema';
 import { WebSocket } from 'ws';
+import { eq } from 'drizzle-orm';
+
+interface WsData {
+	operation: 'add' | 'remove';
+	name?: string;
+	id?: string;
+}
 
 const alphabet = '0123456789';
 const nanoid = customAlphabet(alphabet, 9);
@@ -15,10 +22,10 @@ let wssInitialized = false;
 const startupWebsocketServer = async () => {
 	if (wssInitialized) return;
 	console.log('[wss:kit] setup');
-	const items = await db.select().from(shoppingListTbl);
+	let items = await db.select().from(shoppingListTbl);
 	const wss = (globalThis as ExtendedGlobal)[GlobalThisWSS];
 	if (wss !== undefined) {
-		wss.on('connection', async (ws: ExtendedWebSocket, _request) => {
+		wss.on('connection', async (ws: ExtendedWebSocket) => {
 			// This is where you can authenticate the client from the request
 			// const session = await getSessionFromCookie(request.headers.cookie || '');
 			// if (!session) ws.close(1008, 'User not authenticated');
@@ -28,11 +35,22 @@ const startupWebsocketServer = async () => {
 			ws.send(JSON.stringify(items));
 			ws.on('message', async (data: string) => {
 				console.log(`[wss:kit] received: ${data}`);
-				const newItem = { id: nanoid(), item: data.toString() };
-				await db.insert(shoppingListTbl).values(newItem);
-				items.push(newItem);
+				const { operation, name, id }: WsData = JSON.parse(data);
+				switch (operation) {
+					case 'add': {
+						const newItem = { id: nanoid(), name: name! };
+						await db.insert(shoppingListTbl).values(newItem);
+						items.push(newItem);
+						break;
+					}
+					case 'remove': {
+						await db.delete(shoppingListTbl).where(eq(shoppingListTbl.id, id!));
+						items = items.filter((i) => i.id !== id!);
+						break;
+					}
+				}
 				wss.clients.forEach((c) => {
-					if (c.readyState === WebSocket.OPEN){
+					if (c.readyState === WebSocket.OPEN) {
 						c.send(JSON.stringify(items));
 					}
 				});
