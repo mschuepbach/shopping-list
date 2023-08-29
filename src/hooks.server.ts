@@ -7,6 +7,7 @@ import { db } from './lib/server/db';
 import { shoppingListTbl } from './lib/server/schema';
 import { WebSocket } from 'ws';
 import { eq } from 'drizzle-orm';
+import { auth } from '$lib/server/lucia';
 
 interface WsData {
 	operation: 'add' | 'remove';
@@ -66,6 +67,7 @@ const startupWebsocketServer = async () => {
 
 export const handle = (async ({ event, resolve }) => {
 	startupWebsocketServer();
+	event.locals.auth = auth.handleRequest(event);
 	// Skip WebSocket server when pre-rendering pages
 	if (!building) {
 		const wss = (globalThis as ExtendedGlobal)[GlobalThisWSS];

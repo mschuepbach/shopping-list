@@ -7,9 +7,21 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			wss?: ExtendedWebSocketServer;
+			auth: import('lucia').AuthRequest;
 		}
 		// interface PageData {}
 		// interface Platform {}
+	}
+}
+
+/// <reference types="lucia" />
+declare global {
+	namespace Lucia {
+		type Auth = import('$lib/server/lucia').Auth;
+		type DatabaseUserAttributes = {
+			username: string;
+		};
+		type DatabaseSessionAttributes = Record<string, never>;
 	}
 }
 

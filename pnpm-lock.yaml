@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@lucia-auth/adapter-postgresql':
+    specifier: ^2.0.1
+    version: 2.0.1(lucia@2.4.0)(pg@8.11.3)
   bits-ui:
     specifier: ^0.0.33
     version: 0.0.33(@sveltejs/kit@1.23.0)(svelte@4.2.0)
@@ -14,6 +17,9 @@ dependencies:
   drizzle-orm:
     specifier: ^0.28.5
     version: 0.28.5(@types/pg@8.10.2)(pg@8.11.3)
+  lucia:
+    specifier: ^2.4.0
+    version: 2.4.0
   lucide-svelte:
     specifier: ^0.268.0
     version: 0.268.0(svelte@4.2.0)
@@ -615,6 +621,22 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
+
+  /@lucia-auth/adapter-postgresql@2.0.1(lucia@2.4.0)(pg@8.11.3):
+    resolution: {integrity: sha512-HrgyCsHXEWMD3oF2vSzbqucwGR9zCNvsV5MTV/J3EkiTHskjJXRoVqIoOONeLsdBTy+nIciyoWNMAYe9LJj3tA==}
+    peerDependencies:
+      lucia: ^2.0.0
+      pg: ^8.8.0
+      postgres: ^3.3.0
+    peerDependenciesMeta:
+      pg:
+        optional: true
+      postgres:
+        optional: true
+    dependencies:
+      lucia: 2.4.0
+      pg: 8.11.3
+    dev: false
 
   /@mapbox/node-pre-gyp@1.0.11:
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
@@ -2198,6 +2220,10 @@ packages:
     dependencies:
       es5-ext: 0.10.62
     dev: true
+
+  /lucia@2.4.0:
+    resolution: {integrity: sha512-v2pyFQVF734+EU3m9GeeJQorFR7zLt7JoOJ1UD5ttR5Z+w4IkOyExiXyFe+zssKpony66u94wcxyws3lZSpzzg==}
+    dev: false
 
   /lucide-svelte@0.268.0(svelte@4.2.0):
     resolution: {integrity: sha512-w2pqfViiU9PgHkyOoYEr3FBG4tk+fupm2tR7/p6ugfNQZg1ABdXP2okkasEfQ8TF41KkR6uFqQUp8ciCdpGwVw==}

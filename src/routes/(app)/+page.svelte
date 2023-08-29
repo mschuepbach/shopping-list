@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import type { SelectShoppingList } from '../lib/server/schema';
+	import type { SelectShoppingList } from '$lib/server/schema';
 
 	let webSocketEstablished = false;
 	let ws: WebSocket | null = null;
@@ -46,16 +46,14 @@
 	});
 </script>
 
-<main class="flex h-full w-full flex-col items-center justify-between p-2">
-	<div class="flex flex-wrap gap-2 overflow-auto">
-		{#each items as item}
-			<Button class="h-24 w-24 bg-orange-700" on:click={() => removeItem(item.id)}>
-				{item.name}
-			</Button>
-		{/each}
-	</div>
-	<div class="flex w-full gap-2">
-		<Input class="w-full" bind:value={newItem} />
-		<Button on:click={() => addItem()}>Add</Button>
-	</div>
-</main>
+<div class="flex flex-wrap gap-2 p-2 overflow-y-auto">
+	{#each items as item}
+		<Button class="h-24 w-24 bg-orange-700" on:click={() => removeItem(item.id)}>
+			{item.name}
+		</Button>
+	{/each}
+</div>
+<div class="flex w-full mt-auto gap-2 p-2">
+	<Input class="w-full" bind:value={newItem} />
+	<Button on:click={() => addItem()}>Add</Button>
+</div>
