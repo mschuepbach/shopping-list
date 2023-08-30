@@ -1,6 +1,7 @@
 import { auth } from '$lib/server/lucia';
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
+import { DatabaseError } from 'pg';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = await locals.auth.validate();
@@ -41,24 +42,16 @@ export const actions: Actions = {
 			});
 			locals.auth.setSession(session); // set session cookie
 		} catch (e) {
-			// this part depends on the database you're using
 			// check for unique constraint error in user table
-			// if (
-			// 	e instanceof SomeDatabaseError &&
-			// 	e.message === USER_TABLE_UNIQUE_CONSTRAINT_ERROR
-			// ) {
-			// 	return fail(400, {
-			// 		message: "Username already taken"
-			// 	});
-			// }
+			if (e instanceof DatabaseError && e?.code === '23505') {
+				return fail(400, {
+					message: 'Username is already taken'
+				});
+			}
 			return fail(500, {
-				message: 'An unknown error occurred',
-				type: typeof e,
-				error: e.message
+				message: 'An unknown error occurred'
 			});
 		}
-		// redirect to
-		// make sure you don't throw inside a try/catch block!
 		throw redirect(302, '/');
 	}
 };
