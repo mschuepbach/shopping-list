@@ -2,11 +2,15 @@ import { auth } from '$lib/server/lucia';
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { DatabaseError } from 'pg';
+import { db } from '$lib/server/db';
+import { inviteTbl } from '$lib/server/schema';
+import { eq } from 'drizzle-orm';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	const session = await locals.auth.validate();
 	if (session) throw redirect(302, '/');
-	return {};
+	const inviteId = url.searchParams.get('invite_id');
+	return { inviteId };
 };
 
 export const actions: Actions = {
@@ -14,6 +18,7 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const username = formData.get('username');
 		const password = formData.get('password');
+		const inviteId = formData.get('inviteId');
 		// basic check
 		if (typeof username !== 'string' || username.length < 4 || username.length > 31) {
 			return fail(400, {
@@ -25,6 +30,13 @@ export const actions: Actions = {
 				message: 'Invalid password'
 			});
 		}
+		if (typeof inviteId !== 'string' || inviteId.length === 0)
+			return fail(404, { message: 'Invite is required' });
+		const invites = await db.select().from(inviteTbl).where(eq(inviteTbl.id, inviteId));
+		if (invites.length === 0) return fail(404, { message: 'Invalid invite' });
+		const [invite] = invites;
+		const diff = invite.expires - new Date().getTime();
+		if (diff <= 0) return fail(404, { message: 'Invalid invite' });
 		try {
 			const user = await auth.createUser({
 				key: {
@@ -33,7 +45,8 @@ export const actions: Actions = {
 					password // hashed by Lucia
 				},
 				attributes: {
-					username
+					username,
+					isAdmin: false
 				}
 			});
 			const session = await auth.createSession({
@@ -41,6 +54,7 @@ export const actions: Actions = {
 				attributes: {}
 			});
 			locals.auth.setSession(session); // set session cookie
+			await db.delete(inviteTbl).where(eq(inviteTbl.id, inviteId));
 		} catch (e) {
 			// check for unique constraint error in user table
 			if (e instanceof DatabaseError && e?.code === '23505') {

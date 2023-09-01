@@ -5,8 +5,9 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 
-	import type { ActionData } from './$types';
+	import type { PageData, ActionData } from './$types';
 
+	export let data: PageData;
 	export let form: ActionData;
 </script>
 
@@ -26,6 +27,7 @@
 					<Input type="password" id="password" name="password" />
 				</div>
 			</div>
+			<input type="hidden" name="inviteId" value={data.inviteId}/>
 		</form>
 		{#if form?.message}
 			<p class="text-red-500">{form.message}</p>

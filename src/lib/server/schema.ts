@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { pgTable, bigint, varchar } from 'drizzle-orm/pg-core';
+import { pgTable, bigint, varchar, boolean } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('auth_user', {
 	id: varchar('id', {
@@ -9,7 +9,8 @@ export const user = pgTable('auth_user', {
 		length: 31
 	})
 		.notNull()
-		.unique()
+		.unique(),
+	isAdmin: boolean('isAdmin').notNull().default(false)
 });
 
 export const session = pgTable('user_session', {
@@ -41,6 +42,15 @@ export const key = pgTable('user_key', {
 	hashedPassword: varchar('hashed_password', {
 		length: 255
 	})
+});
+
+export const inviteTbl = pgTable('invite', {
+	id: varchar('id', {
+		length: 255
+	}).primaryKey(),
+	expires: bigint('expires', {
+		mode: 'number'
+	}).notNull()
 });
 
 export const shoppingListTbl = pgTable('shopping_list', {
