@@ -2,11 +2,12 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import type { SelectShoppingList } from '$lib/server/schema';
+	import type { PageData } from './$types';
 
+	export let data: PageData;
 	let webSocketEstablished = false;
 	let ws: WebSocket | null = null;
-	let items: SelectShoppingList[] = [];
+	let items = data.items;
 	let newItem = '';
 
 	const establishWebSocket = () => {
@@ -46,14 +47,20 @@
 	});
 </script>
 
-<div class="flex flex-wrap gap-2 p-2 overflow-y-auto">
-	{#each items as item}
-		<Button class="h-24 w-24 bg-orange-700" on:click={() => removeItem(item.id)}>
-			{item.name}
-		</Button>
-	{/each}
+{#if items.length > 0}
+	<div class="flex flex-wrap gap-2 overflow-y-auto p-2">
+		{#each items as item}
+			<Button class="h-24 w-24 bg-orange-700" on:click={() => removeItem(item.id)}>
+				{item.name}
+			</Button>
+		{/each}
+	</div>
+{:else}
+<div class="m-auto">
+	<p class="text-muted-foreground">No Items</p>
 </div>
-<div class="flex w-full mt-auto gap-2 p-2">
+{/if}
+<div class="mt-auto flex w-full gap-2 p-2">
 	<Input class="w-full" bind:value={newItem} />
 	<Button on:click={() => addItem()}>Add</Button>
 </div>

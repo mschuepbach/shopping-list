@@ -1,6 +1,13 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { auth } from '$lib/server/lucia';
-import type { Actions } from './$types';
+import type { Actions, PageServerLoad } from './$types';
+import { db } from '$lib/server/db';
+import { shoppingListTbl } from '$lib/server/schema';
+
+export const load: PageServerLoad = async () => {
+	const items = await db.select().from(shoppingListTbl);
+	return { items };
+};
 
 export const actions: Actions = {
 	logout: async ({ locals }) => {
