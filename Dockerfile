@@ -4,10 +4,12 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
+ENV DB_URL=""
+
 COPY pnpm-lock.yaml* ./
 COPY package.json ./
 
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
