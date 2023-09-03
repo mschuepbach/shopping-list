@@ -26,11 +26,10 @@ jobs:
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup pnpm
+      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598
         with:
-          node-version: 18
-          cache: 'npm'
+          version: 8
 
       - name: Setup Git
         run: |
@@ -38,7 +37,7 @@ jobs:
           git config user.email 'mschuepbach@pm.me'
 
       - name: bump version
-        run: npm version ${{ github.event.inputs.version }}
+        run: pnpm version ${{ github.event.inputs.version }}
 
       - name: Push latest version
         run: git push origin main --follow-tags
