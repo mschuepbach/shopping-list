@@ -4,6 +4,8 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
+ENV DB_URL=""
+
 COPY pnpm-lock.yaml* ./
 COPY package.json ./
 
