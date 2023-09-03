@@ -27,7 +27,7 @@ jobs:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Setup pnpm
-      - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598
+        uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598
         with:
           version: 8
 
