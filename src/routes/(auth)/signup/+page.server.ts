@@ -1,10 +1,12 @@
-import { auth } from '$lib/server/lucia';
-import { fail, redirect } from '@sveltejs/kit';
-import type { PageServerLoad, Actions } from './$types';
-import { DatabaseError } from 'pg';
 import { db } from '$lib/server/db';
+import { auth } from '$lib/server/lucia';
 import { inviteTbl } from '$lib/server/schema';
+import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
+import pg from 'pg';
+import type { Actions, PageServerLoad } from './$types';
+
+const { DatabaseError } = pg;
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const session = await locals.auth.validate();
