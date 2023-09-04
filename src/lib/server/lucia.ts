@@ -1,7 +1,8 @@
-import { lucia } from 'lucia';
-import { pg } from '@lucia-auth/adapter-postgresql';
-import { sveltekit } from 'lucia/middleware';
 import { dev } from '$app/environment';
+import { createAdminUser } from '$lib/server/utils';
+import { pg } from '@lucia-auth/adapter-postgresql';
+import { lucia } from 'lucia';
+import { sveltekit } from 'lucia/middleware';
 import { pg as pool } from './db';
 
 export const auth = lucia({
@@ -19,5 +20,7 @@ export const auth = lucia({
 		};
 	}
 });
+
+await createAdminUser();
 
 export type Auth = typeof auth;
