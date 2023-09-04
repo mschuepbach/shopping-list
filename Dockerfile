@@ -4,8 +4,6 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-ENV DB_URL=""
-
 COPY pnpm-lock.yaml* ./
 COPY package.json ./
 
@@ -24,7 +22,6 @@ WORKDIR /app
 COPY --from=build /app/package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/build ./build
-
-EXPOSE 3000
+COPY --from=build /app/drizzle ./drizzle
 
 CMD ["node", "build"]
