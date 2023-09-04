@@ -5,7 +5,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import pg from 'pg';
 
-const { Pool } = pg;
+const { Pool, DatabaseError } = pg;
 
 const pool = new Pool({
 	connectionString: env.DB_URL
@@ -28,17 +28,23 @@ async function createAdminUser() {
 
 	if (!username || !password) throw Error('Admin username and password are required.');
 
-	await auth.createUser({
-		key: {
-			providerId: 'username', // auth method
-			providerUserId: username.toLowerCase(), // unique id when using "username" auth method
-			password // hashed by Lucia
-		},
-		attributes: {
-			username,
-			isAdmin: true
+	try {
+		await auth.createUser({
+			key: {
+				providerId: 'username', // auth method
+				providerUserId: username.toLowerCase(), // unique id when using "username" auth method
+				password // hashed by Lucia
+			},
+			attributes: {
+				username,
+				isAdmin: true
+			}
+		});
+	} catch (e) {
+		if (!(e instanceof DatabaseError && e?.code === '23505')) {
+			throw e;
 		}
-	});
+	}
 }
 
 export { db, pool as pg };
