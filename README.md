@@ -16,10 +16,10 @@ services:
       - 3000:3000
     environment:
       - PORT=3000
-      - ORIGIN=http://localhost:3000
+      - ORIGIN=https://example.com
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=adminpassword
-      - DB_URL=postgresql://shopping-list:postgrespassword@shopping-list-db:5432/shopping-list
+      - DB_URL=postgresql://postgres:postgrespassword@shopping-list-db:5432
     depends_on:
       - shopping-list-db
 
@@ -28,7 +28,6 @@ services:
     container_name: shopping-list-db
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=shopping-list
       - POSTGRES_PASSWORD=postgrespassword
 ```
 
