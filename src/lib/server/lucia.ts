@@ -1,4 +1,4 @@
-import { dev } from '$app/environment';
+import { building, dev } from '$app/environment';
 import { createAdminUser } from '$lib/server/utils';
 import { pg } from '@lucia-auth/adapter-postgresql';
 import { lucia } from 'lucia';
@@ -21,6 +21,8 @@ export const auth = lucia({
 	}
 });
 
-await createAdminUser();
+if (!building) {
+	await createAdminUser();
+}
 
 export type Auth = typeof auth;
