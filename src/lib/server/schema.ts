@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { pgTable, bigint, varchar, boolean } from 'drizzle-orm/pg-core';
+import { bigint, boolean, pgEnum, pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('auth_user', {
 	id: varchar('id', {
@@ -59,3 +59,11 @@ export const shoppingListTbl = pgTable('shopping_list', {
 });
 
 export type SelectShoppingList = InferSelectModel<typeof shoppingListTbl>;
+
+export const operationEnum = pgEnum('operation', ['add', 'remove']);
+
+export const historyTbl = pgTable('history', {
+	timestamp: timestamp('timestamp', { withTimezone: true }).defaultNow(),
+	name: varchar('name', { length: 300 }),
+	operation: operationEnum('operation')
+});

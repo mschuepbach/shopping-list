@@ -1,13 +1,13 @@
 import { building } from '$app/environment';
+import { auth } from '$lib/server/lucia';
 import type { ExtendedGlobal, ExtendedWebSocket } from '$lib/server/webSocketUtils';
 import { GlobalThisWSS } from '$lib/server/webSocketUtils';
 import type { Handle } from '@sveltejs/kit';
+import { and, eq, gte, notInArray, sql } from 'drizzle-orm';
 import { customAlphabet } from 'nanoid';
-import { db } from './lib/server/db';
-import { shoppingListTbl } from './lib/server/schema';
 import { WebSocket } from 'ws';
-import { eq } from 'drizzle-orm';
-import { auth } from '$lib/server/lucia';
+import { db } from './lib/server/db';
+import { historyTbl, shoppingListTbl } from './lib/server/schema';
 
 interface WsData {
 	operation: 'add' | 'remove';
@@ -24,6 +24,8 @@ const startupWebsocketServer = async () => {
 	if (wssInitialized) return;
 	console.log('[wss:kit] setup');
 	let items = await db.select().from(shoppingListTbl);
+	let recommendations = await getRecommendations(items.map((i) => i.name!));
+
 	const wss = (globalThis as ExtendedGlobal)[GlobalThisWSS];
 	if (wss !== undefined) {
 		wss.on('connection', async (ws: ExtendedWebSocket) => {
@@ -33,10 +35,10 @@ const startupWebsocketServer = async () => {
 			// ws.userId = session.userId;
 			console.log(`[wss:kit] client connected (${ws.socketId})`);
 			ws.send(`Hello from SvelteKit ${new Date().toLocaleString()} (${ws.socketId})]`);
-			ws.send(JSON.stringify(items));
+			ws.send(JSON.stringify({ items, recommendations }));
 			ws.on('message', async (data: string) => {
 				console.log(`[wss:kit] received: ${data}`);
-				const { operation, name, id }: WsData = JSON.parse(data);
+				let { operation, name, id }: WsData = JSON.parse(data);
 				switch (operation) {
 					case 'add': {
 						const newItem = { id: nanoid(), name: name! };
@@ -45,14 +47,20 @@ const startupWebsocketServer = async () => {
 						break;
 					}
 					case 'remove': {
-						await db.delete(shoppingListTbl).where(eq(shoppingListTbl.id, id!));
+						const deleted: { name: string | null }[] = await db
+							.delete(shoppingListTbl)
+							.where(eq(shoppingListTbl.id, id!))
+							.returning({ name: shoppingListTbl.name });
 						items = items.filter((i) => i.id !== id!);
+						name = deleted[0]?.name ?? undefined;
 						break;
 					}
 				}
+				await db.insert(historyTbl).values({ name, operation });
+				recommendations = await getRecommendations(items.map((i) => i.name!));
 				wss.clients.forEach((c) => {
 					if (c.readyState === WebSocket.OPEN) {
-						c.send(JSON.stringify(items));
+						c.send(JSON.stringify({ items, recommendations }));
 					}
 				});
 			});
@@ -63,6 +71,41 @@ const startupWebsocketServer = async () => {
 		});
 		wssInitialized = true;
 	}
+};
+
+const getRecommendations = async (items: string[]) => {
+	const where = [eq(historyTbl.operation, 'remove')];
+
+	if (items.length > 0) {
+		where.push(notInArray(historyTbl.name, items));
+	}
+
+	const history = await db
+		.select({
+			count: sql<number>`count(*)`,
+			name: historyTbl.name,
+			timestamps: sql<Date[]>`array_agg(${historyTbl.timestamp})`
+		})
+		.from(historyTbl)
+		.where(and(...where))
+		.groupBy(historyTbl.name)
+		.having(({ count }) => gte(count, 2));
+
+	const recommendations = history
+		.map((i) => {
+			const first = i.timestamps[0].getTime();
+			const last = i.timestamps[i.count - 1].getTime();
+			const average = (last - first) / i.count - 1;
+			const diff = new Date().getTime() - (last + average);
+			return {
+				name: i.name,
+				diff
+			};
+		})
+		.sort((a, b) => a.diff - b.diff)
+		.map((i) => i.name);
+
+	return recommendations;
 };
 
 export const handle = (async ({ event, resolve }) => {

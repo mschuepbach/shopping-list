@@ -8,6 +8,7 @@
 	let ws: WebSocket | null = null;
 	let items = data.items;
 	let newItem = '';
+	let recommendations: string[] = [];
 	let showOffline = false;
 
 	const establishWebSocket = () => {
@@ -26,16 +27,22 @@
 		ws.addEventListener('message', (event) => {
 			console.log('[websocket] message received', event);
 			try {
-				items = JSON.parse(event.data);
+				const data = JSON.parse(event.data);
+				items = data.items;
+				recommendations = data.recommendations;
 			} catch (error) {}
 		});
 	};
 
-	const addItem = async (e: SubmitEvent) => {
+	const handleSubmit = async (e: SubmitEvent) => {
 		e.preventDefault();
-		if (newItem !== '' && ws?.readyState === WebSocket.OPEN) {
-			ws?.send(JSON.stringify({ operation: 'add', name: newItem }));
-			newItem = '';
+		addItem(newItem);
+		newItem = '';
+	};
+
+	const addItem = async (name: string) => {
+		if (name !== '' && ws?.readyState === WebSocket.OPEN) {
+			ws?.send(JSON.stringify({ operation: 'add', name }));
 		}
 	};
 
@@ -73,8 +80,13 @@
 			You are offline
 		</div>
 	{/if}
+	<div class="flex w-full gap-2 px-2">
+		{#each recommendations as recommendation}
+			<Button variant="secondary" on:click={() => addItem(recommendation)}>{recommendation}</Button>
+		{/each}
+	</div>
 	<div class="w-full">
-		<form class="flex w-full gap-2 p-2" on:submit={(e) => addItem(e)}>
+		<form class="flex w-full gap-2 p-2" on:submit={(e) => handleSubmit(e)}>
 			<Input class="w-full" bind:value={newItem} />
 			<Button>Add</Button>
 		</form>
