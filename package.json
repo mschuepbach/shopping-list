@@ -12,7 +12,8 @@
 		"format": "prettier --write .",
 		"prodServer": "tsm ./prodServer.ts",
 		"db:push": "drizzle-kit push:pg",
-		"db:introspect": "drizzle-kit introspect:pg"
+		"db:introspect": "drizzle-kit introspect:pg",
+		"db:migration": "drizzle-kit generate:pg"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-node": "^1.3.1",
