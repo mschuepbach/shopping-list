@@ -8,6 +8,7 @@
 	let ws: WebSocket | null = null;
 	let items = data.items;
 	let newItem = '';
+	let allRecommendations: string[] = [];
 	let recommendations: string[] = [];
 	let showOffline = false;
 
@@ -29,7 +30,8 @@
 			try {
 				const data = JSON.parse(event.data);
 				items = data.items;
-				recommendations = data.recommendations;
+				allRecommendations = data.recommendations;
+				updateRecommendations();
 			} catch (error) {}
 		});
 	};
@@ -50,6 +52,12 @@
 		if (ws?.readyState === WebSocket.OPEN) {
 			ws?.send(JSON.stringify({ operation: 'remove', id }));
 		}
+	};
+
+	const updateRecommendations = () => {
+		recommendations = newItem
+			? allRecommendations.filter((r) => r?.startsWith(newItem))
+			: allRecommendations;
 	};
 
 	onMount(() => {
@@ -80,13 +88,17 @@
 			You are offline
 		</div>
 	{/if}
-	<div class="flex w-full gap-2 px-2">
+	<div class="flex w-full gap-2 overflow-auto px-2">
 		{#each recommendations as recommendation}
 			<Button variant="secondary" on:click={() => addItem(recommendation)}>{recommendation}</Button>
 		{/each}
 	</div>
 	<div class="w-full">
-		<form class="flex w-full gap-2 p-2" on:submit={(e) => handleSubmit(e)}>
+		<form
+			class="flex w-full gap-2 p-2"
+			on:submit={(e) => handleSubmit(e)}
+			on:input={updateRecommendations}
+		>
 			<Input class="w-full" bind:value={newItem} />
 			<Button>Add</Button>
 		</form>
