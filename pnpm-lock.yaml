@@ -21,8 +21,8 @@ dependencies:
     specifier: ^2.7.1
     version: 2.7.1
   lucide-svelte:
-    specifier: ^0.279.0
-    version: 0.279.0(svelte@4.2.1)
+    specifier: ^0.288.0
+    version: 0.288.0(svelte@4.2.1)
   nanoid:
     specifier: ^5.0.2
     version: 5.0.2
@@ -1916,8 +1916,8 @@ packages:
     resolution: {integrity: sha512-EHDTajS1YWA7Q37jd29Far1l4nfZgsWLp4hDQeaQhVpJd2WKQqA3626kJYmOj1CTweVMkE54xFi5JIph+agZkQ==}
     dev: false
 
-  /lucide-svelte@0.279.0(svelte@4.2.1):
-    resolution: {integrity: sha512-u9j8tMPxWsv5iXJvrUU/jpyML/k49flr7440UE8QM9V3u0OZt5+qaY5TMiPDTVRMdEELBg4d4ueW1+3Mo3VT4A==}
+  /lucide-svelte@0.288.0(svelte@4.2.1):
+    resolution: {integrity: sha512-rgpEAifh+Xs6aRCk3PmNO1yAMF7E3764fRvTDj1BSEI9VdfDQIabjx07Uh8KeMy2SB9dmp565F/H3fHTWQ49fw==}
     peerDependencies:
       svelte: '>=3 <5'
     dependencies:
