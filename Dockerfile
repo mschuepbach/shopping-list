@@ -1,4 +1,4 @@
-FROM node:20-alpine as build
+FROM node:21-alpine as build
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN pnpm run build && \
     pnpm prune --prod
 
 
-FROM node:20-alpine
+FROM node:21-alpine
 
 WORKDIR /app
 
