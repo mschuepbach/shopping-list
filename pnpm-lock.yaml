@@ -30,8 +30,8 @@ dependencies:
     specifier: ^8.11.3
     version: 8.11.3
   rate-limiter-flexible:
-    specifier: ^3.0.1
-    version: 3.0.1
+    specifier: ^3.0.3
+    version: 3.0.3
   tailwind-merge:
     specifier: ^1.14.0
     version: 1.14.0
@@ -2422,8 +2422,8 @@ packages:
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  /rate-limiter-flexible@3.0.1:
-    resolution: {integrity: sha512-m1rIQtp9VoIlDpmIkBmVF6p+arBLwQDYmXJQshZ+UIJ+kMobeUjVNZlFF1rORq3WvTCATf4d0cdGvtYSMSLKOg==}
+  /rate-limiter-flexible@3.0.3:
+    resolution: {integrity: sha512-Wn9STZy2bKaWin9U54opnHvX14NNAlfLD+eiOTNNQnsIOd2A7Rnmt9msHWbUBloSEz2Nk1YTQ4CBa30TdlAgag==}
     dev: false
 
   /read-cache@1.0.0:
