@@ -6,7 +6,7 @@ import { nanoid } from 'nanoid';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = await locals.auth.validate();
-	if (!session) throw redirect(302, '/login');
+	if (!session) redirect(302, '/login');
 	if (!session.user.isAdmin) return fail(403);
 
 	const users = await db.select().from(user);

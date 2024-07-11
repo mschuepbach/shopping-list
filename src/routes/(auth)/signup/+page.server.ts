@@ -10,7 +10,7 @@ const { DatabaseError } = pg;
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const session = await locals.auth.validate();
-	if (session) throw redirect(302, '/');
+	if (session) redirect(302, '/');
 	const inviteId = url.searchParams.get('invite_id');
 	return { inviteId };
 };
@@ -68,6 +68,6 @@ export const actions: Actions = {
 				message: 'An unknown error occurred'
 			});
 		}
-		throw redirect(302, '/');
+		redirect(302, '/');
 	}
 };

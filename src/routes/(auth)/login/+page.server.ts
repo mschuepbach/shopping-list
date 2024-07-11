@@ -6,7 +6,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = await locals.auth.validate();
-	if (session) throw redirect(302, '/');
+	if (session) redirect(302, '/');
 	return {};
 };
 
@@ -95,6 +95,6 @@ export const actions: Actions = {
 			await limiterUsernameAndIp.delete(usernameIpKey);
 		}
 
-		throw redirect(302, '/');
+		redirect(302, '/');
 	}
 };
