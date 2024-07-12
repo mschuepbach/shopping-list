@@ -1,5 +1,5 @@
 import { building } from '$app/environment';
-import { auth } from '$lib/server/lucia';
+import { lucia } from '$lib/server/auth';
 import type { ExtendedGlobal, ExtendedWebSocket } from '$lib/server/webSocketUtils';
 import { GlobalThisWSS } from '$lib/server/webSocketUtils';
 import type { Handle } from '@sveltejs/kit';
@@ -110,7 +110,32 @@ const getRecommendations = async (items: string[]) => {
 
 export const handle = (async ({ event, resolve }) => {
 	startupWebsocketServer();
-	event.locals.auth = auth.handleRequest(event);
+
+	const sessionId = event.cookies.get(lucia.sessionCookieName);
+	if (!sessionId) {
+		event.locals.user = null;
+		event.locals.session = null;
+		return resolve(event);
+	}
+
+	const { session, user } = await lucia.validateSession(sessionId);
+	if (session && session.fresh) {
+		const sessionCookie = lucia.createSessionCookie(session.id);
+		event.cookies.set(sessionCookie.name, sessionCookie.value, {
+			path: '.',
+			...sessionCookie.attributes
+		});
+	}
+	if (!session) {
+		const sessionCookie = lucia.createBlankSessionCookie();
+		event.cookies.set(sessionCookie.name, sessionCookie.value, {
+			path: '.',
+			...sessionCookie.attributes
+		});
+	}
+	event.locals.user = user;
+	event.locals.session = session;
+
 	// Skip WebSocket server when pre-rendering pages
 	if (!building) {
 		const wss = (globalThis as ExtendedGlobal)[GlobalThisWSS];

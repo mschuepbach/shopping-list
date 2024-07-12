@@ -1,20 +1,27 @@
 {
-  "version": "5",
-  "dialect": "pg",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "5",
-      "when": 1693819891073,
-      "tag": "0000_curvy_timeslip",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1697299368656,
-      "tag": "0001_polite_the_fury",
-      "breakpoints": true
-    }
-  ]
+	"version": "5",
+	"dialect": "pg",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "5",
+			"when": 1693819891073,
+			"tag": "0000_curvy_timeslip",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "5",
+			"when": 1697299368656,
+			"tag": "0001_polite_the_fury",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "5",
+			"when": 1720735496833,
+			"tag": "0002_late_layla_miller",
+			"breakpoints": true
+		}
+	]
 }

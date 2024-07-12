@@ -1,6 +1,7 @@
 import { db } from '$lib/server/db';
-import { auth } from '$lib/server/lucia';
-import { inviteTbl } from '$lib/server/schema';
+import { lucia } from '$lib/server/auth';
+import { inviteTbl, userTbl } from '$lib/server/schema';
+import { generateIdFromEntropySize, LegacyScrypt } from 'lucia';
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import pg from 'pg';
@@ -9,14 +10,13 @@ import type { Actions, PageServerLoad } from './$types';
 const { DatabaseError } = pg;
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	const session = await locals.auth.validate();
-	if (session) redirect(302, '/');
+	if (locals.user) redirect(302, '/');
 	const inviteId = url.searchParams.get('invite_id');
 	return { inviteId };
 };
 
 export const actions: Actions = {
-	default: async ({ request, locals }) => {
+	default: async ({ request, locals, cookies }) => {
 		const formData = await request.formData();
 		const username = formData.get('username');
 		const password = formData.get('password');
@@ -40,22 +40,21 @@ export const actions: Actions = {
 		const diff = invite.expires - new Date().getTime();
 		if (diff <= 0) return fail(404, { message: 'Invalid invite' });
 		try {
-			const user = await auth.createUser({
-				key: {
-					providerId: 'username', // auth method
-					providerUserId: username.toLowerCase(), // unique id when using "username" auth method
-					password // hashed by Lucia
-				},
-				attributes: {
-					username,
-					isAdmin: false
-				}
+			const passwordHash = await new LegacyScrypt().hash(password);
+			const userId = generateIdFromEntropySize(10);
+
+			await db.insert(userTbl).values({
+				id: userId,
+				username,
+				hashedPassword: passwordHash
 			});
-			const session = await auth.createSession({
-				userId: user.userId,
-				attributes: {}
+
+			const session = await lucia.createSession(userId, {});
+			const sessionCookie = lucia.createSessionCookie(session.id);
+			cookies.set(sessionCookie.name, sessionCookie.value, {
+				path: '.',
+				...sessionCookie.attributes
 			});
-			locals.auth.setSession(session); // set session cookie
 			await db.delete(inviteTbl).where(eq(inviteTbl.id, inviteId));
 		} catch (e) {
 			// check for unique constraint error in user table
@@ -64,10 +63,11 @@ export const actions: Actions = {
 					message: 'Username is already taken'
 				});
 			}
+			console.error(e);
 			return fail(500, {
 				message: 'An unknown error occurred'
 			});
 		}
-		redirect(302, '/');
+		return redirect(302, '/');
 	}
 };

@@ -1,8 +1,8 @@
 {
 	"version": "5",
 	"dialect": "pg",
-	"id": "66e5bc34-5d69-4b44-91a4-0ed6da483fdf",
-	"prevId": "4780e125-800d-40cd-850b-625bf52ebc1e",
+	"id": "0a07344b-bda8-4c56-a860-61b1fc4d2050",
+	"prevId": "66e5bc34-5d69-4b44-91a4-0ed6da483fdf",
 	"tables": {
 		"history": {
 			"name": "history",
@@ -55,13 +55,13 @@
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {}
 		},
-		"user_key": {
-			"name": "user_key",
+		"session": {
+			"name": "session",
 			"schema": "",
 			"columns": {
 				"id": {
 					"name": "id",
-					"type": "varchar(255)",
+					"type": "text",
 					"primaryKey": true,
 					"notNull": true
 				},
@@ -71,63 +71,19 @@
 					"primaryKey": false,
 					"notNull": true
 				},
-				"hashed_password": {
-					"name": "hashed_password",
-					"type": "varchar(255)",
-					"primaryKey": false,
-					"notNull": false
-				}
-			},
-			"indexes": {},
-			"foreignKeys": {
-				"user_key_user_id_auth_user_id_fk": {
-					"name": "user_key_user_id_auth_user_id_fk",
-					"tableFrom": "user_key",
-					"tableTo": "auth_user",
-					"columnsFrom": ["user_id"],
-					"columnsTo": ["id"],
-					"onDelete": "no action",
-					"onUpdate": "no action"
-				}
-			},
-			"compositePrimaryKeys": {},
-			"uniqueConstraints": {}
-		},
-		"user_session": {
-			"name": "user_session",
-			"schema": "",
-			"columns": {
-				"id": {
-					"name": "id",
-					"type": "varchar(128)",
-					"primaryKey": true,
-					"notNull": true
-				},
-				"user_id": {
-					"name": "user_id",
-					"type": "varchar(15)",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"active_expires": {
-					"name": "active_expires",
-					"type": "bigint",
-					"primaryKey": false,
-					"notNull": true
-				},
-				"idle_expires": {
-					"name": "idle_expires",
-					"type": "bigint",
+				"expires_at": {
+					"name": "expires_at",
+					"type": "timestamp with time zone",
 					"primaryKey": false,
 					"notNull": true
 				}
 			},
 			"indexes": {},
 			"foreignKeys": {
-				"user_session_user_id_auth_user_id_fk": {
-					"name": "user_session_user_id_auth_user_id_fk",
-					"tableFrom": "user_session",
-					"tableTo": "auth_user",
+				"session_user_id_user_id_fk": {
+					"name": "session_user_id_user_id_fk",
+					"tableFrom": "session",
+					"tableTo": "user",
 					"columnsFrom": ["user_id"],
 					"columnsTo": ["id"],
 					"onDelete": "no action",
@@ -159,19 +115,25 @@
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {}
 		},
-		"auth_user": {
-			"name": "auth_user",
+		"user": {
+			"name": "user",
 			"schema": "",
 			"columns": {
 				"id": {
 					"name": "id",
-					"type": "varchar(15)",
+					"type": "text",
 					"primaryKey": true,
 					"notNull": true
 				},
 				"username": {
 					"name": "username",
 					"type": "varchar(31)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"hashed_password": {
+					"name": "hashed_password",
+					"type": "text",
 					"primaryKey": false,
 					"notNull": true
 				},
@@ -187,8 +149,8 @@
 			"foreignKeys": {},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {
-				"auth_user_username_unique": {
-					"name": "auth_user_username_unique",
+				"user_username_unique": {
+					"name": "user_username_unique",
 					"nullsNotDistinct": false,
 					"columns": ["username"]
 				}
@@ -207,7 +169,10 @@
 	"schemas": {},
 	"_meta": {
 		"schemas": {},
-		"tables": {},
+		"tables": {
+			"\"user_session\"": "\"session\"",
+			"\"auth_user\"": "\"user\""
+		},
 		"columns": {}
 	}
 }

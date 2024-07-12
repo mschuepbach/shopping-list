@@ -1,12 +1,14 @@
-import { auth } from '$lib/server/lucia';
+import { lucia } from '$lib/server/auth';
 import { fail, redirect } from '@sveltejs/kit';
-import { LuciaError } from 'lucia';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 import type { Actions, PageServerLoad } from './$types';
+import { db } from '$lib/server/db';
+import { userTbl } from '$lib/server/schema';
+import { eq } from 'drizzle-orm';
+import { LegacyScrypt } from 'lucia';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const session = await locals.auth.validate();
-	if (session) redirect(302, '/');
+	if (locals.user) redirect(302, '/');
 	return {};
 };
 
@@ -25,7 +27,7 @@ const limiterIp = new RateLimiterMemory({
 });
 
 export const actions: Actions = {
-	default: async ({ request, locals, getClientAddress }) => {
+	default: async ({ request, cookies, getClientAddress }) => {
 		const clientAddress = getClientAddress();
 		const formData = await request.formData();
 		const username = formData.get('username');
@@ -64,30 +66,16 @@ export const actions: Actions = {
 			});
 		}
 
-		try {
-			// find user by key and validate password
-			const user = await auth.useKey('username', username.toLowerCase(), password);
-			const session = await auth.createSession({
-				userId: user.userId,
-				attributes: {}
-			});
-			locals.auth.setSession(session); // set session cookie
-		} catch (e) {
-			if (
-				e instanceof LuciaError &&
-				(e.message === 'AUTH_INVALID_KEY_ID' || e.message === 'AUTH_INVALID_PASSWORD')
-			) {
-				// user does not exist or invalid password
-				await Promise.all([
-					limiterUsernameAndIp.consume(usernameIpKey),
-					limiterIp.consume(clientAddress)
-				]);
-				return fail(400, {
-					message: 'Incorrect username or password'
-				});
-			}
-			return fail(500, {
-				message: 'An unknown error occurred'
+		const user = (await db.select().from(userTbl).where(eq(userTbl.username, username)))[0];
+		const validPassword = await new LegacyScrypt().verify(user?.hashedPassword ?? '', password);
+
+		if (!user || !validPassword) {
+			await Promise.all([
+				limiterUsernameAndIp.consume(usernameIpKey),
+				limiterIp.consume(clientAddress)
+			]);
+			return fail(400, {
+				message: 'Incorrect username or password'
 			});
 		}
 
@@ -95,6 +83,13 @@ export const actions: Actions = {
 			await limiterUsernameAndIp.delete(usernameIpKey);
 		}
 
-		redirect(302, '/');
+		const session = await lucia.createSession(user.id, {});
+		const sessionCookie = lucia.createSessionCookie(session.id);
+		cookies.set(sessionCookie.name, sessionCookie.value, {
+			path: '.',
+			...sessionCookie.attributes
+		});
+
+		return redirect(302, '/');
 	}
 };

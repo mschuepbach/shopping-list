@@ -1,15 +1,15 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
-import { inviteTbl, user } from '$lib/server/schema';
+import { inviteTbl, userTbl } from '$lib/server/schema';
 import { nanoid } from 'nanoid';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const session = await locals.auth.validate();
-	if (!session) redirect(302, '/login');
-	if (!session.user.isAdmin) return fail(403);
+	const { user } = locals;
+	if (!user) redirect(302, '/login');
+	if (!user.isAdmin) return fail(403);
 
-	const users = await db.select().from(user);
+	const users = await db.select().from(userTbl);
 	const invites = await db.select().from(inviteTbl);
 	return { users, invites };
 };
