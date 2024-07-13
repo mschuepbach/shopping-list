@@ -11,9 +11,9 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"prodServer": "tsm ./prodServer.ts",
-		"db:push": "drizzle-kit push:pg",
-		"db:introspect": "drizzle-kit introspect:pg",
-		"db:migration": "drizzle-kit generate:pg"
+		"db:push": "drizzle-kit push",
+		"db:introspect": "drizzle-kit introspect",
+		"db:migration": "drizzle-kit generate"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-node": "^2.1.2",
@@ -25,7 +25,7 @@
 		"@typescript-eslint/parser": "^6.8.0",
 		"autoprefixer": "^10.4.16",
 		"dotenv": "^16.3.1",
-		"drizzle-kit": "^0.19.13",
+		"drizzle-kit": "^0.23.0",
 		"eslint": "^8.51.0",
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-plugin-svelte": "^2.34.0",
@@ -46,7 +46,7 @@
 		"@lucia-auth/adapter-drizzle": "^1.0.7",
 		"bits-ui": "^0.6.0",
 		"clsx": "^2.0.0",
-		"drizzle-orm": "^0.28.6",
+		"drizzle-orm": "^0.32.0",
 		"lucia": "^3.2.0",
 		"lucide-svelte": "^0.292.0",
 		"nanoid": "^5.0.2",
