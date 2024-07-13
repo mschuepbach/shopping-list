@@ -39,12 +39,12 @@
 	const handleSubmit = async (e: SubmitEvent) => {
 		e.preventDefault();
 		addItem(newItem);
-		newItem = '';
 	};
 
 	const addItem = async (name: string) => {
 		if (name !== '' && ws?.readyState === WebSocket.OPEN) {
 			ws?.send(JSON.stringify({ operation: 'add', name }));
+			newItem = '';
 		}
 	};
 
