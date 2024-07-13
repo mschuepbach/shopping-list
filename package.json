@@ -44,7 +44,7 @@
 	"type": "module",
 	"dependencies": {
 		"@lucia-auth/adapter-drizzle": "^1.0.7",
-		"bits-ui": "^0.6.0",
+		"bits-ui": "^0.21.12",
 		"clsx": "^2.0.0",
 		"drizzle-orm": "^0.28.6",
 		"lucia": "^3.2.0",
