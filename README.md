@@ -33,8 +33,14 @@ services:
 
 ## Developing
 
-Install dependencies with `pnpm install` and start the development server:
+### Prerequesites
 
-```bash
-pnpm dev
-```
+- [Node](https://nodejs.org/) & [pnpm](https://pnpm.io/)
+- [Postgresql](https://www.postgresql.org/) database
+
+### Get Started
+
+1. Copy-paste `.env.example` and rename it to `.env`
+1. Edit the values in `.env`
+1. Install dependencies with `pnpm install`
+1. Start the development server with `pnpm dev`
