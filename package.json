@@ -48,7 +48,7 @@
 		"clsx": "^2.1.1",
 		"drizzle-orm": "^0.32.0",
 		"lucia": "^3.2.0",
-		"lucide-svelte": "^0.408.0",
+		"lucide-svelte": "^0.411.0",
 		"nanoid": "^5.0.7",
 		"pg": "^8.12.0",
 		"rate-limiter-flexible": "^5.0.3",
